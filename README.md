@@ -20,3 +20,6 @@ Foram criadas quatro telas principais:
 https://www.figma.com/board/C4Qb7O8bp0vVLOOHa9eYS4/Untitled?node-id=0-1&t=vFSNyIkevciNpS1J-1
 
 ![image](https://github.com/user-attachments/assets/945eb93e-2698-456c-b8ee-ed922155a344)
+
+# Requisitos
+Este projeto precisa da biblioteca `pywebview` para funcionar corretamente.
