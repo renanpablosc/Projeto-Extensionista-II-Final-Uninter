@@ -1,0 +1,232 @@
+import tkinter as tk
+from tkinter import messagebox
+import webview  # faz o mymaps do google abrir na janela 
+
+# cadastros para demonstração
+usuarios = {
+    "88888888": {"nome": "João", "endereco": "Rua Camboriú", "numero": "", "email": "", "senha": "123"},
+    "9999999": {"nome": "Maria", "endereco": "Rua Tubarão", "numero": "", "email": "", "senha": "123"},
+    "1111111": {"nome": "Paulo", "endereco": "Rua Laguna", "numero": "", "email": "", "senha": "123"},
+}
+
+# sinalizações para demonstração
+sinalizacoes = [
+    {
+        "endereco": "Rua Mafra",
+        "reclamacao": "Entulhos da construção parado a meses na calçada."
+    },
+    {
+        "endereco": "Rua Brusque",
+        "reclamacao": "Iluminação quebrada em 3 postes. À noite, escuridão total. Local de retorno de estudantes da noite."
+    }
+]
+
+def abrir_mapa_interno():
+    url = "https://www.google.com/maps/d/u/0/viewer?mid=10Vl-Un_r3CsQSTG23HAsUX3gUkpAOZc"
+    webview.create_window("Mapa Interativo - Comunidade Bom Jesus", url, width=800, height=600)
+    webview.start()
+
+def mostrar_cadastros():
+    janela_cadastros = tk.Toplevel()
+    janela_cadastros.title("Usuários Cadastrados")
+
+    tk.Label(janela_cadastros, text="Usuários Cadastrados", font=("Arial", 14, "bold")).pack(pady=10)
+
+    frame = tk.Frame(janela_cadastros)
+    frame.pack()
+
+    tk.Label(frame, text="Nome", font=("Arial", 10, "bold"), borderwidth=1, relief="solid", width=20).grid(row=0, column=0)
+    tk.Label(frame, text="Telefone", font=("Arial", 10, "bold"), borderwidth=1, relief="solid", width=15).grid(row=0, column=1)
+    tk.Label(frame, text="Endereço", font=("Arial", 10, "bold"), borderwidth=1, relief="solid", width=25).grid(row=0, column=2)
+
+    for i, (telefone, dados) in enumerate(usuarios.items(), start=1):
+        tk.Label(frame, text=dados["nome"], borderwidth=1, relief="solid", width=20).grid(row=i, column=0)
+        tk.Label(frame, text=telefone, borderwidth=1, relief="solid", width=15).grid(row=i, column=1)
+        endereco_completo = f"{dados['endereco']}, {dados['numero']}".strip(', ')
+        tk.Label(frame, text=endereco_completo, borderwidth=1, relief="solid", width=25).grid(row=i, column=2)
+
+def ver_sinalizacoes():
+    janela_lista = tk.Toplevel()
+    janela_lista.title("Sinalizações em Análise")
+
+    tk.Label(janela_lista, text="Sinalizações em Análise", font=("Arial", 14, "bold")).pack(pady=10)
+
+    frame = tk.Frame(janela_lista, padx=10, pady=10)
+    frame.pack()
+
+    tk.Label(frame, text="Endereço", font=("Arial", 10, "bold"), borderwidth=1, relief="solid", width=30).grid(row=0, column=0)
+    tk.Label(frame, text="Reclamação", font=("Arial", 10, "bold"), borderwidth=1, relief="solid", width=50).grid(row=0, column=1)
+
+    for i, s in enumerate(sinalizacoes, start=1):
+        tk.Label(frame, text=s["endereco"], borderwidth=1, relief="solid", width=30, anchor="w").grid(row=i, column=0)
+        tk.Label(frame, text=s["reclamacao"], borderwidth=1, relief="solid", width=50, anchor="w", justify="left", wraplength=350).grid(row=i, column=1)
+
+def sinalizar_local():
+    janela_sinalizar = tk.Toplevel()
+    janela_sinalizar.title("Sinalizar Local")
+
+    tk.Label(janela_sinalizar, text="Sinalizar Local com Problema", font=("Arial", 14, "bold")).pack(pady=10)
+
+    frame = tk.Frame(janela_sinalizar, padx=10, pady=10)
+    frame.pack()
+
+    tk.Label(frame, text="Endereço:").grid(row=0, column=0, sticky="e")
+    entrada_endereco = tk.Entry(frame, width=40)
+    entrada_endereco.grid(row=0, column=1)
+
+    tk.Label(frame, text="Reclamação:").grid(row=1, column=0, sticky="ne")
+    caixa_reclamacao = tk.Text(frame, width=40, height=5)
+    caixa_reclamacao.grid(row=1, column=1)
+
+    def enviar_reclamacao():
+        endereco = entrada_endereco.get()
+        reclamacao = caixa_reclamacao.get("1.0", "end").strip()
+        if endereco and reclamacao:
+            sinalizacoes.append({"endereco": endereco, "reclamacao": reclamacao})
+            messagebox.showinfo("Sinalização enviada",
+                "Obrigado pela sinalização, vamos verificar.\nA comunidade Bom Jesus agradece.")
+            janela_sinalizar.destroy()
+        else:
+            messagebox.showwarning("Erro", "Por favor, preencha todos os campos.")
+
+    tk.Button(frame, text="Enviar", command=enviar_reclamacao, bg="#FF9800", fg="white").grid(row=2, column=0, columnspan=2, pady=10)
+
+def cadastrar():
+    telefone = ent_tel.get()
+    nome = ent_nome.get()
+    endereco = ent_end.get()
+    numero = ent_num.get()
+    email = ent_email.get()
+    senha = ent_senha.get()
+
+    if telefone and senha:
+        usuarios[telefone] = {
+            "nome": nome,
+            "endereco": endereco,
+            "numero": numero,
+            "email": email,
+            "senha": senha
+        }
+        messagebox.showinfo("Cadastro", "Usuário cadastrado com sucesso!")
+        tela_cadastro.destroy()
+        login()
+    else:
+        messagebox.showwarning("Erro", "Telefone e senha são obrigatórios")
+
+def fazer_login():
+    telefone = ent_tel_login.get()
+    senha = ent_senha_login.get()
+
+    if telefone in usuarios:
+        if usuarios[telefone]['senha'] == senha:
+            messagebox.showinfo("Login", "Login realizado com sucesso!")
+            tela_login.destroy()
+            avisos()
+        else:
+            messagebox.showerror("Erro", "Senha incorreta.")
+    else:
+        messagebox.showwarning("Cadastro não encontrado", "Cadastro não encontrado. Crie sua conta.")
+        tela_login.destroy()
+        tela_inicial()
+
+def cadastro():
+    global tela_cadastro, ent_tel, ent_nome, ent_end, ent_num, ent_email, ent_senha
+    tela_cadastro = tk.Tk()
+    tela_cadastro.title("Cadastro Comunitário")
+
+    tk.Label(tela_cadastro, text="CADASTRO COMUNITÁRIO BOM JESUS", font=("Arial", 14, "bold")).pack(pady=10)
+
+    frame = tk.Frame(tela_cadastro, padx=10, pady=10)
+    frame.pack()
+
+    tk.Label(frame, text="Telefone:").grid(row=0, column=0, sticky="e")
+    ent_tel = tk.Entry(frame)
+    ent_tel.grid(row=0, column=1)
+
+    tk.Label(frame, text="Nome:").grid(row=1, column=0, sticky="e")
+    ent_nome = tk.Entry(frame)
+    ent_nome.grid(row=1, column=1)
+
+    tk.Label(frame, text="Endereço:").grid(row=2, column=0, sticky="e")
+    ent_end = tk.Entry(frame)
+    ent_end.grid(row=2, column=1)
+
+    tk.Label(frame, text="Número:").grid(row=3, column=0, sticky="e")
+    ent_num = tk.Entry(frame)
+    ent_num.grid(row=3, column=1)
+
+    tk.Label(frame, text="Email:").grid(row=4, column=0, sticky="e")
+    ent_email = tk.Entry(frame)
+    ent_email.grid(row=4, column=1)
+
+    tk.Label(frame, text="Senha:").grid(row=5, column=0, sticky="e")
+    ent_senha = tk.Entry(frame, show="*")
+    ent_senha.grid(row=5, column=1)
+
+    tk.Button(frame, text="Criar cadastro", command=cadastrar, bg="#4CAF50", fg="white").grid(row=6, column=0, columnspan=2, pady=10)
+    tk.Button(frame, text="Voltar", command=lambda: [tela_cadastro.destroy(), tela_inicial()], bg="#f44336", fg="white").grid(row=7, column=0, columnspan=2)
+
+    tela_cadastro.mainloop()
+
+def login():
+    global tela_login, ent_tel_login, ent_senha_login
+    tela_login = tk.Tk()
+    tela_login.title("Login Comunitário")
+
+    tk.Label(tela_login, text="LOGIN COMUNITÁRIO BOM JESUS", font=("Arial", 14, "bold")).pack(pady=10)
+
+    frame = tk.Frame(tela_login, padx=10, pady=10)
+    frame.pack()
+
+    tk.Label(frame, text="Telefone:").grid(row=0, column=0, sticky="e")
+    ent_tel_login = tk.Entry(frame)
+    ent_tel_login.grid(row=0, column=1)
+
+    tk.Label(frame, text="Senha:").grid(row=1, column=0, sticky="e")
+    ent_senha_login = tk.Entry(frame, show="*")
+    ent_senha_login.grid(row=1, column=1)
+
+    tk.Button(frame, text="Entrar", command=fazer_login, bg="#2196F3", fg="white").grid(row=2, column=0, columnspan=2, pady=10)
+    tk.Button(frame, text="Voltar", command=lambda: [tela_login.destroy(), tela_inicial()], bg="#f44336", fg="white").grid(row=3, column=0, columnspan=2)
+
+    tela_login.mainloop()
+
+def avisos():
+    tela_avisos = tk.Tk()
+    tela_avisos.title("Avisos da Comunidade")
+
+    frame = tk.Frame(tela_avisos, bg="#d0e8ff", padx=10, pady=10)
+    frame.pack()
+
+    tk.Label(frame, text="Avisos da Comunidade", font=("Arial", 14, "bold"), bg="#d0e8ff").pack(pady=5)
+
+    avisos_fixos = "• Terças: Coleta de lixo reciclável\n• Quintas: Coleta de lixo orgânico"
+    avisos_eventos = "\n05/07: Reunião mensal\n11/07: Oficina de informática\n13/07: Mutirão de limpeza"
+
+    tk.Label(frame, text=avisos_fixos + "\n" + avisos_eventos, justify="left", bg="#d0e8ff").pack()
+
+    tk.Button(frame, text="Mapa Interativo", bg="#88c9ff", command=abrir_mapa_interno).pack(pady=5)
+    tk.Button(frame, text="Site", bg="#88c9ff").pack(pady=5)
+    tk.Button(frame, text="Cadastros", bg="#4CAF50", fg="white", command=mostrar_cadastros).pack(pady=5)
+    tk.Button(frame, text="Sinalizar Local", bg="#FF9800", fg="white", command=sinalizar_local).pack(pady=5)
+    tk.Button(frame, text="Sinalizações em Análise", bg="#9C27B0", fg="white", command=ver_sinalizacoes).pack(pady=5)
+
+    tela_avisos.mainloop()
+
+def tela_inicial():
+    tela = tk.Tk()
+    tela.title("Bem-vindo")
+
+    tk.Label(
+        tela,
+        text="Bem-vindo ao Painel Digital\nComunitário Bom Jesus",
+        font=("Arial", 16, "bold")
+    ).pack(pady=20)
+
+    tk.Button(tela, text="Entrar", command=lambda: [tela.destroy(), login()], width=20, bg="#2196F3", fg="white").pack(pady=10)
+    tk.Button(tela, text="Cadastrar", command=lambda: [tela.destroy(), cadastro()], width=20, bg="#4CAF50", fg="white").pack(pady=10)
+
+    tela.mainloop()
+
+# inicio programa
+tela_inicial()
